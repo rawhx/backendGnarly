@@ -176,6 +176,27 @@ const postAksi = async (id, payload) => {
           transaction: t,
         }
       );
+
+      if (status == "Disetujui") {
+        stok_status = "Tersedia"
+        if (stok_status === 3) {
+          stok_status = "Hampir Habis"
+        } else if (stok_status === 0) {
+          stok_status = "Habis"
+        }
+
+        await sequelize.query(
+          `
+          INSERT INTO stok_barang (id_detail_barang, lokasi, qty, status_stok, updated_at)
+          VALUES(?, ?, ?, ?, ?) 
+          `,
+          {
+            replacements: [item.id_barang, "Gudang", barangRows[0].qty, stok_status, now()],
+            type: sequelize.QueryTypes.INSERT,
+            transaction: t,
+          }
+        );
+      }
     }
 
     await t.commit();
