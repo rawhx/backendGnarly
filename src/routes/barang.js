@@ -1,5 +1,5 @@
 const express = require("express");
-const { getPenerimaanBarang, getDetailPenerimaanBarang, postPenerimaanBarang, postAksiPenerimaanBarang } = require("../handler/barangHandler");
+const { getPenerimaanBarang, getDetailPenerimaanBarang, postPenerimaanBarang, postAksiPenerimaanBarang, getDataBarang, getDataBarangSelect } = require("../handler/barangHandler");
 const { requestValidasi } = require("../../pkg/validasi");
 const { roleOwner, roleAdminGudang } = require("../../pkg/middleware/role");
 
@@ -33,11 +33,15 @@ const ruleAksi = [
   }
 ]
 
-const penerimaanBarang = express.Router();
+const barang = express.Router();
 
-penerimaanBarang.get("/", getPenerimaanBarang)
-penerimaanBarang.get("/:id_penerimaan", getDetailPenerimaanBarang)
-penerimaanBarang.post("/", roleAdminGudang, requestValidasi(rulePostPenerimaan), postPenerimaanBarang)
-penerimaanBarang.patch("/:id_penerimaan", roleOwner, requestValidasi(ruleAksi), postAksiPenerimaanBarang)
+barang.get("/penerimaan", getPenerimaanBarang)
+barang.get("/penerimaan/:id_penerimaan", getDetailPenerimaanBarang)
+barang.post("/penerimaan", roleAdminGudang, requestValidasi(rulePostPenerimaan), postPenerimaanBarang)
+barang.patch("/penerimaan/:id_penerimaan", roleOwner, requestValidasi(ruleAksi), postAksiPenerimaanBarang)
 
-module.exports = penerimaanBarang
+barang.get("/", getDataBarang)
+barang.get("/select", getDataBarangSelect)
+
+
+module.exports = barang

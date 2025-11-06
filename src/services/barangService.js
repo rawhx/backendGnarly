@@ -4,7 +4,7 @@ const { now } = require("sequelize/lib/utils");
 const postPenerimaan = async (payload) => {
   const { no_nota, barang } = payload.body;
   const user_id = payload.user.id
-  
+
   const t = await sequelize.transaction();
 
   try {
@@ -62,10 +62,10 @@ const postPenerimaan = async (payload) => {
       error?.message ||
       "Terjadi kesalahan server";
 
-      if (error?.original?.code === "ER_DUP_ENTRY") {
-        const message = `Data dengan no_nota '${error?.original?.sqlMessage?.match(/'(.+)'/)[1]}' sudah ada`;
-        return { error: true, code: 400, message };
-      }
+    if (error?.original?.code === "ER_DUP_ENTRY") {
+      const message = `Data dengan no_nota '${error?.original?.sqlMessage?.match(/'(.+)'/)[1]}' sudah ada`;
+      return { error: true, code: 400, message };
+    }
 
     return { error: true, code: 500, message };
   }
@@ -97,16 +97,20 @@ const getPenerimaanDetail = async (id) => {
   )
 
   if (!penerimaan && penerimaan == null) {
-    return { error: true, code: 404, message: "Data tidak tersedia", data: {
-      penerimaan,
-      data_barang: barang
-    }};
+    return {
+      error: true, code: 404, message: "Data tidak tersedia", data: {
+        penerimaan,
+        data_barang: barang
+      }
+    };
   }
 
-  return { error: false, code: 200, message: "Berhasil mendapatkan data", data: {
+  return {
+    error: false, code: 200, message: "Berhasil mendapatkan data", data: {
       penerimaan,
       data_barang: barang
-    }};
+    }
+  };
 }
 
 const postAksi = async (id, payload) => {
@@ -220,4 +224,91 @@ const postAksi = async (id, payload) => {
   }
 };
 
-module.exports = { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi };
+const getBarang = async (payload) => {
+  userRole = payload.user.role
+
+  lokasi = "Gudang"
+  if (userRole === "AK" || userRole === "ko") {
+    lokasi = "Toko"
+  } else if (userRole === "OW") {
+    lokasi = null
+  }
+
+  let query = `
+    SELECT sb.*, dpb.*
+    FROM stok_barang sb
+    JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang
+    WHERE sb.lokasi = :lokasi
+  `;
+
+  const replacements = { lokasi };
+
+  // if (kategoriFilter) {
+  //   query += ` AND sb.kategori = ?`;
+  //   replacements.kategori = kategoriFilter;
+  // }
+
+  const data = await sequelize.query(query, {
+    replacements,
+    type: sequelize.QueryTypes.SELECT,
+  });
+
+  return { error: false, code: 200, message: "Berhasil mendapatkan data", data: data };
+}
+
+const getBarangSelect = async (payload) => {
+  const {tipe} = payload.query;
+
+  let lokasi = "Toko";
+  if (tipe === "Request") {
+    lokasi = "Gudang"
+  }
+
+  let query = `
+        SELECT 
+            sb.id, 
+            sb.id_detail_barang,
+            sb.lokasi, 
+            sb.qty,
+            sb.status_stok,
+            dpb.kode_barang,
+            dpb.nama_barang,
+            dpb.kategori,
+            dpb.tanggal_kadaluarsa
+        FROM stok_barang sb
+        JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang
+        WHERE (:lokasi IS NULL OR sb.lokasi = :lokasi)
+    `;
+
+  const replacements = { lokasi };
+
+  try {
+    const data = await sequelize.query(query, {
+      replacements,
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    return {
+      error: false,
+      code: 200,
+      message: "Berhasil mendapatkan data",
+      data: data
+    };
+
+  } catch (error) {
+    const message =
+      error?.original?.sqlMessage ||
+      error?.original?.message ||
+      error?.message ||
+      "Terjadi kesalahan server";
+
+    if (error?.original?.code === "ER_DUP_ENTRY") {
+      const message = `Data dengan no_nota '${error?.original?.sqlMessage?.match(/'(.+)'/)[1]}' sudah ada`;
+      return { error: true, code: 400, message };
+    }
+
+    return { error: true, code: 500, message };
+  }
+};
+
+module.exports = { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi, getBarang, getBarangSelect };
