@@ -3,7 +3,8 @@ const { ResponseSuccess } = require("../../pkg/response");
 const { now } = require("sequelize/lib/utils");
 const { auth } = require("./user");
 const AuthMiddleware = require("../../pkg/middleware/auth");
-const penerimaanBarang = require("./barang");
+const barang = require("./barang");
+const mutasi = require("./mutasi");
 
 const router = express.Router();
 
@@ -47,6 +48,7 @@ router.use("/admin", admin)
 admin.get("/", (req, res) => {
     return ResponseSuccess(res, 200, "route admin", req.user)
 })
-admin.use("/barang", penerimaanBarang)
+admin.use("/barang", barang)
+admin.use("/mutasi", mutasi)
 
 module.exports = router;
