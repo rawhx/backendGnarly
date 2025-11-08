@@ -5,6 +5,7 @@ const { auth } = require("./user");
 const AuthMiddleware = require("../../pkg/middleware/auth");
 const barang = require("./barang");
 const mutasi = require("./mutasi");
+const transaksi = require("./transaksi");
 
 const router = express.Router();
 
@@ -50,5 +51,6 @@ admin.get("/", (req, res) => {
 })
 admin.use("/barang", barang)
 admin.use("/mutasi", mutasi)
+admin.use("/transaksi", transaksi)
 
 module.exports = router;
