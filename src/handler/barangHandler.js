@@ -1,5 +1,5 @@
 const { ResponseError, ResponseSuccess } = require("../../pkg/response");
-const { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi, getBarang, getBarangSelect } = require("../services/barangService");
+const { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi, getBarang, getBarangSelect, getBarangToko } = require("../services/barangService");
 
 const postPenerimaanBarang = async (req, res) => {
     try {
@@ -87,4 +87,20 @@ const getDataBarangSelect = async (req, res) => {
     }
 }
 
-module.exports = { postPenerimaanBarang, getPenerimaanBarang, getDetailPenerimaanBarang, postAksiPenerimaanBarang, getDataBarang, getDataBarangSelect }
+const geDataBarangToko = async (req, res) => {
+    // return ResponseError(res, 501, "Endpoint masih dalam pengembangan");
+
+    try {
+        const result = await getBarangToko();
+
+        if (result.error) {
+            return ResponseError(res, result.code, result.message);
+        }
+
+        return ResponseSuccess(res, result.code, result.message, result.data);
+    } catch (error) {
+        return ResponseError(res, 500, "Terjadi kesalahan server", error.message);
+    }
+}
+
+module.exports = { postPenerimaanBarang, getPenerimaanBarang, getDetailPenerimaanBarang, postAksiPenerimaanBarang, getDataBarang, getDataBarangSelect, geDataBarangToko }

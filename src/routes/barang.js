@@ -1,5 +1,5 @@
 const express = require("express");
-const { getPenerimaanBarang, getDetailPenerimaanBarang, postPenerimaanBarang, postAksiPenerimaanBarang, getDataBarang, getDataBarangSelect } = require("../handler/barangHandler");
+const { getPenerimaanBarang, getDetailPenerimaanBarang, postPenerimaanBarang, postAksiPenerimaanBarang, getDataBarang, getDataBarangSelect, geDataBarangToko } = require("../handler/barangHandler");
 const { requestValidasi } = require("../../pkg/validasi");
 const { roleOwner, roleAdminGudang } = require("../../pkg/middleware/role");
 
@@ -42,6 +42,7 @@ barang.patch("/penerimaan/:id_penerimaan", roleOwner, requestValidasi(ruleAksi),
 
 barang.get("/", getDataBarang)
 barang.get("/select", getDataBarangSelect)
+barang.get("/toko", geDataBarangToko)
 
 
 module.exports = barang

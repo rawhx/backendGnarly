@@ -228,7 +228,7 @@ const getBarang = async (payload) => {
   userRole = payload.user.role
 
   lokasi = "Gudang"
-  if (userRole === "AK" || userRole === "ko") {
+  if (userRole === "AK" || userRole === "KO") {
     lokasi = "Toko"
   } else if (userRole === "OW") {
     lokasi = null
@@ -237,16 +237,18 @@ const getBarang = async (payload) => {
   let query = `
     SELECT sb.*, dpb.*
     FROM stok_barang sb
-    JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang
-    WHERE sb.lokasi = :lokasi
-  `;
+    JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang `;
 
-  const replacements = { lokasi };
+  const replacements = {  };
 
-  // if (kategoriFilter) {
-  //   query += ` AND sb.kategori = ?`;
-  //   replacements.kategori = kategoriFilter;
-  // }
+  if (userRole !== "OW") {
+    query += ` WHERE sb.lokasi = :lokasi`;
+    replacements.lokasi = lokasi;
+  }
+
+  if (userRole === "KO") {
+    query += ` AND dpb.kategori = "Obat-obatan"`;
+  }
 
   const data = await sequelize.query(query, {
     replacements,
@@ -280,6 +282,14 @@ const getBarangSelect = async (payload) => {
         WHERE (:lokasi IS NULL OR sb.lokasi = :lokasi)
     `;
 
+  if (payload.user.role === "KO") {
+    query += ` AND dpb.kategori = 'Obat-obatan' `;
+  }
+
+  if (tipe === "Request") {
+    query += ` AND dpb.tanggal_kadaluarsa > NOW()`;
+  }
+
   const replacements = { lokasi };
 
   try {
@@ -311,4 +321,19 @@ const getBarangSelect = async (payload) => {
   }
 };
 
-module.exports = { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi, getBarang, getBarangSelect };
+const getBarangToko = async () => {
+ let query = `
+    SELECT sb.id, sb.id_detail_barang, sb.lokasi, sb.qty, sb.status_stok, sb.updated_at, dpb.kode_barang, dpb.nama_barang, dpb.kategori, dpb.tanggal_kadaluarsa, dpb.harga_satuan
+    FROM stok_barang sb
+    JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang
+    WHERE sb.lokasi = "Toko"
+  `;
+
+  const data = await sequelize.query(query, {
+    type: sequelize.QueryTypes.SELECT,
+  });
+
+  return { error: false, code: 200, message: "Berhasil mendapatkan data", data: data };
+}
+
+module.exports = { postPenerimaan, getPenerimaan, getPenerimaanDetail, postAksi, getBarang, getBarangSelect, getBarangToko };
