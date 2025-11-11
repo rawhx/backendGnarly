@@ -88,7 +88,7 @@ const getPenerimaanDetail = async (id) => {
     { replacements: [id], type: sequelize.QueryTypes.SELECT }
   )
 
-  const [barang] = await sequelize.query(
+  const barang = await sequelize.query(
     `
       SELECT * FROM detail_penerimaan_barang
       WHERE id_penerimaan = ?
