@@ -154,11 +154,18 @@ const postTransaksi = async (payload) => {
 }
 
 const getTransaksi = async (payload) => {
-  const { tanggalAwal, tanggalAkhir } = payload.query;
+  const { tanggal_awal, tanggal_akhir } = payload.query;
+  console.log(tanggal_awal)
 
   try {
     let query = `SELECT * FROM transaksi`
     let replacements = {};
+
+    if (tanggal_awal && tanggal_akhir) {
+      query += ` WHERE DATE(created_at) BETWEEN :tanggal_awal AND :tanggal_akhir`
+      replacements.tanggal_awal = tanggal_awal
+      replacements.tanggal_akhir = tanggal_akhir
+    }
 
     query += ` ORDER BY created_at DESC`
 

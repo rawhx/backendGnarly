@@ -19,16 +19,7 @@ const postTransaksi = [
     { field: "total", required: true }
 ]
 
-const getTransaksi = [
-    {
-        field: "tanggalAwal",
-    },
-    {
-        field: "tanggalAkhir",
-    }
-]
-
 transaksi.post("/", requestValidasi(postTransaksi), storeTransaksi)
-transaksi.get("/", requestValidasi(getTransaksi), getTransaksiHandler)
+transaksi.get("/", getTransaksiHandler)
 
 module.exports = transaksi

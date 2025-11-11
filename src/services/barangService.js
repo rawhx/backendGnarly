@@ -235,7 +235,7 @@ const getBarang = async (payload) => {
   }
 
   let query = `
-    SELECT sb.*, dpb.*
+    SELECT sb.*, dpb.kode_barang, dpb.nama_barang, dpb.tanggal_kadaluarsa, dpb.kategori, dpb.harga_satuan
     FROM stok_barang sb
     JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang `;
 
@@ -279,7 +279,7 @@ const getBarangSelect = async (payload) => {
             dpb.tanggal_kadaluarsa
         FROM stok_barang sb
         JOIN detail_penerimaan_barang dpb ON dpb.id = sb.id_detail_barang
-        WHERE (:lokasi IS NULL OR sb.lokasi = :lokasi)
+        WHERE (:lokasi IS NULL OR sb.lokasi = :lokasi) AND sb.qty > 0
     `;
 
   if (payload.user.role === "KO") {
