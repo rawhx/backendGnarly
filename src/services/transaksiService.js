@@ -1,7 +1,7 @@
 const sequelize = require("../../pkg/config/database");
 
 const postTransaksi = async (payload) => {
-  const { barang, total } = payload.body;
+  const { barang, total, tipe, cash } = payload.body;
 
   let totalBarang = 0;
   barang.forEach((dt) => {
@@ -23,8 +23,8 @@ const postTransaksi = async (payload) => {
   try {
     const [insertResult] = await sequelize.query(
       `INSERT INTO transaksi 
-        (kode_transaksi, total_jenis, total_barang, total_harga, created_by, created_at) 
-       VALUES (?, ?, ?, ?, ?, NOW())`,
+        (kode_transaksi, total_jenis, total_barang, total_harga, created_by, created_at, tipe, cash) 
+       VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)`,
       {
         replacements: [
           kodeTransaksi,
@@ -32,6 +32,8 @@ const postTransaksi = async (payload) => {
           totalBarang,
           total,
           payload.user.id,
+          tipe, 
+          cash
         ],
         type: sequelize.QueryTypes.INSERT,
         transaction: t,

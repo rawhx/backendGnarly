@@ -16,7 +16,9 @@ const postTransaksi = [
             { field: "harga_satuan", required: true }
         ]
     },
-    { field: "total", required: true }
+    { field: "total", required: true },
+    { field: "tipe" },
+    { field: "cash" }
 ]
 
 transaksi.post("/", requestValidasi(postTransaksi), storeTransaksi)
